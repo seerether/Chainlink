@@ -1,0 +1,4 @@
+function ownerResetBlessVotes(IARM.TaggedRoot[] memory taggedRoots) external onlyOwner onlyWhenNoActiveBlessings(taggedRoots) {
+  // Rest of the function code remains the same
+  // ...
+}
