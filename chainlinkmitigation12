@@ -1,0 +1,10 @@
+modifier onlyWhenNoActiveBlessings(IARM.TaggedRoot[] memory taggedRoots) {
+  for (uint256 i = 0; i < taggedRoots.length; ++i) {
+    bytes32 taggedRootHash = _taggedRootHash(taggedRoots[i]);
+    BlessVoteProgress memory voteProgress = s_blessVoteProgressByTaggedRootHash[taggedRootHash];
+    if (voteProgress.weightThresholdMet || voteProgress.configVersion == s_versionedConfig.configVersion) {
+      revert("Cannot reset votes when active or in-progress blessings exist.");
+    }
+  }
+  _;
+}
