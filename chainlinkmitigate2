@@ -1,0 +1,6 @@
+uint256 newAccumulatedWeight = SafeMath.add(voteProgress.accumulatedWeight, blesserRecord.weight);
+if (newAccumulatedWeight < voteProgress.accumulatedWeight) {
+  // Handle integer overflow, revert the transaction or take appropriate action
+  revert("Integer overflow detected");
+}
+voteProgress.accumulatedWeight = newAccumulatedWeight;
