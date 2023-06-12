@@ -1,0 +1,52 @@
+pragma solidity 0.8.19;
+
+import {ITypeAndVersion} from "./interfaces/ITypeAndVersion.sol";
+import {IARM} from "./interfaces/IARM.sol";
+
+import {OwnerIsCreator} from "./OwnerIsCreator.sol";
+
+contract ARM is IARM, OwnerIsCreator, ITypeAndVersion {
+  // ...
+
+  function voteToBless(IARM.TaggedRoot[] calldata taggedRoots) external {
+    // ...
+
+    for (uint256 i = 0; i < taggedRoots.length; ++i) {
+      IARM.TaggedRoot memory taggedRoot = taggedRoots[i];
+      bytes32 taggedRootHash = _taggedRootHash(taggedRoots[i]);
+      BlessVoteProgress memory voteProgress = s_blessVoteProgressByTaggedRootHash[taggedRootHash];
+      if (voteProgress.weightThresholdMet) {
+        emit AlreadyBlessed(configVersion, msg.sender, taggedRoot);
+        continue;
+      }
+      if (voteProgress.configVersion != configVersion) {
+        voteProgress = BlessVoteProgress({
+          configVersion: configVersion,
+          voterBitmap: 0,
+          accumulatedWeight: voteProgress.weightThresholdMet ? 0 : voteProgress.accumulatedWeight,
+          weightThresholdMet: false
+        });
+      }
+      if (_bitmapGet(voteProgress.voterBitmap, blesserRecord.index)) {
+        emit AlreadyVotedToBless(configVersion, msg.sender, taggedRoot);
+        continue;
+      }
+      
+      uint16 updatedWeight = voteProgress.accumulatedWeight + blesserRecord.weight;
+      if (updatedWeight < voteProgress.accumulatedWeight) {
+        revert("Integer overflow occurred");
+      }
+      
+      voteProgress.voterBitmap = _bitmapSet(voteProgress.voterBitmap, blesserRecord.index);
+      voteProgress.accumulatedWeight = updatedWeight;
+      emit VotedToBless(configVersion, msg.sender, taggedRoot, blesserRecord.weight);
+      if (voteProgress.accumulatedWeight >= s_versionedConfig.config.blessWeightThreshold) {
+        voteProgress.weightThresholdMet = true;
+        emit TaggedRootBlessed(configVersion, taggedRoot, voteProgress.accumulatedWeight);
+      }
+      s_blessVoteProgressByTaggedRootHash[taggedRootHash] = voteProgress;
+    }
+  }
+  
+  // ...
+}
