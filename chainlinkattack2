@@ -1,0 +1,23 @@
+pragma solidity 0.8.19;
+
+import {ITypeAndVersion} from "./interfaces/ITypeAndVersion.sol";
+import {IARM} from "./interfaces/IARM.sol";
+
+import {OwnerIsCreator} from "./OwnerIsCreator.sol";
+
+contract ARM is IARM, OwnerIsCreator, ITypeAndVersion {
+  // ...
+
+  function ownerManipulateBlessVotes(IARM.TaggedRoot[] memory taggedRoots, bool blessStatus) external onlyOwner {
+    for (uint256 i = 0; i < taggedRoots.length; ++i) {
+      bytes32 taggedRootHash = _taggedRootHash(taggedRoots[i]);
+      BlessVoteProgress memory voteProgress = s_blessVoteProgressByTaggedRootHash[taggedRootHash];
+      voteProgress.weightThresholdMet = blessStatus;
+      s_blessVoteProgressByTaggedRootHash[taggedRootHash] = voteProgress;
+
+      emit TaggedRootBlessVotesReset(s_versionedConfig.configVersion, taggedRoots[i], blessStatus);
+    }
+  }
+
+  // ...
+}
