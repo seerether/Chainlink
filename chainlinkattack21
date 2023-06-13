@@ -1,0 +1,10 @@
+pragma solidity 0.8.19;
+
+contract MaliciousContract {
+    // Malicious method that consumes excessive gas
+    function consumeGas() public {
+        while (true) {
+            // Infinite loop to consume gas
+        }
+    }
+}
