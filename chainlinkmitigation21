@@ -1,0 +1,8 @@
+function executeAction(ActionInfo calldata actionInfo, uint256 gasLimit) external payable {
+    // ...
+
+    // Execute action with gas limit.
+    (bool success, bytes memory result) = executor.executeWithGasLimit{gas: gasLimit}(actionInfo.target, actionInfo.value, action.isScript, actionInfo.data);
+
+    // ...
+}
