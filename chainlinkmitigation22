@@ -1,0 +1,12 @@
+contract LlamaExecutor {
+    function executeWithGasLimit(address target, uint256 value, bool isScript, bytes calldata data) external returns (bool, bytes memory) {
+        if (isScript) {
+            // If the target is a script, perform the necessary checks and execute accordingly.
+            // Implement your logic here.
+        } else {
+            // If the target is a regular contract, execute the function with the specified gas limit.
+            (bool success, bytes memory result) = target.call{value: value, gas: gasleft()}(data);
+            return (success, result);
+        }
+    }
+}
