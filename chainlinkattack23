@@ -1,0 +1,4 @@
+// Assuming the executeAction function is called
+
+// Transaction reverts due to out-of-gas error during execution of the malicious method
+llamaCore.executeAction(llamaCore.getAction(actionId));
